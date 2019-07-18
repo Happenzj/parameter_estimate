@@ -55,3 +55,15 @@ When the message is received, Run "Ctrl+c",The result will be printed in the ter
     b--Left wheel circumference
 
     c--wheelbase
+
+### 2 experiment
+
+> roscore
+
+> cd catkin_ws/src/parameter_estimate/dataset
+
+> rosbag play 2019-06-17-16-47-35.bag
+
+> cd catkin_ws
+
+> rosrun parameter_estimate parameter_estimate
