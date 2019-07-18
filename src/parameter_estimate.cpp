@@ -21,7 +21,6 @@
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2/LinearMath/Matrix3x3.h"
 
-
 #define NORMALIZE(_z) atan2(sin(_z), cos(_z))
 const double encoder_cpr = 5000.0;
 const double radian = 57.295779;
@@ -57,6 +56,7 @@ public:
    std::vector<int64_t> RightEncoderBuf_, LeftEncoderBuf_;
    std::vector<float> CameraOdomXBuf_, CameraOdomYBuf_, CameraOdomYawBuf_;
    std::vector<float> residual_;
+   int64_t MsgNum_;
 };
 
 int main(int argc, char** argv)
@@ -67,26 +67,28 @@ int main(int argc, char** argv)
     
     MessageSync MsgSub;
     MessageSync *p = &MsgSub;
-
+    
     message_filters::Subscriber<nav_msgs::Odometry> OdomSub(nh, "/zed_odom", 1);
     message_filters::Subscriber<roboteq_diff_msgs::Encoder> EncoderSub(nh, "/roboteq/encoder", 1);
     typedef message_filters::sync_policies::ApproximateTime<nav_msgs::Odometry, roboteq_diff_msgs::Encoder> sync_pol;
     message_filters::Synchronizer<sync_pol> sync(sync_pol(10),OdomSub,EncoderSub);
     sync.registerCallback(boost::bind(&MessageSync::SubscribMsg, p ,_1,_2));
-    p->EstimatePara();
+    
     ros::spin();
     ros::shutdown();
+    p->EstimatePara();
 
     return 0; 
 }
 
 void MessageSync::SubscribMsg(const nav_msgs::Odometry::ConstPtr& OdomMsg,const roboteq_diff_msgs::Encoder::ConstPtr& EncoMsg)
 {
+    ++MsgNum_;
     RightEncoderBuf_.push_back(EncoMsg->right_vel);
     LeftEncoderBuf_.push_back(EncoMsg->left_vel);
     CameraOdomXBuf_.push_back(OdomMsg->pose.pose.position.x);
     CameraOdomYBuf_.push_back(OdomMsg->pose.pose.position.y);
-
+    
     tf2::Quaternion q(
     OdomMsg->pose.pose.orientation.x,
     OdomMsg->pose.pose.orientation.y,
@@ -97,10 +99,13 @@ void MessageSync::SubscribMsg(const nav_msgs::Odometry::ConstPtr& OdomMsg,const 
     m.getRPY(roll, pitch, yaw);
     
     CameraOdomYawBuf_.push_back(yaw * radian);
-
     std::cout<<"RightEnco: "<<EncoMsg->right_vel<<"  LeftEnco: "<<EncoMsg->left_vel
              <<"  XPos: "<<OdomMsg->pose.pose.position.x<<"  YPOs: "<<OdomMsg->pose.pose.position.y
              <<"  Yaw: "<<yaw * radian<<std::endl;
+    while(!ros::ok())
+    {
+        std::cout<<"Error!"<<std::endl;
+    }
 }
 
 void MessageSync::EstimatePara()
