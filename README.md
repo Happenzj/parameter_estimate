@@ -38,7 +38,7 @@
 
 > catkin_make 
 
-#### 2 Usage
+### 2 usage
 
 > roscore
 
