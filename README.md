@@ -9,7 +9,9 @@
 #### 1.1 Required Dependencies
 
 - Before you install Ceres-solver, You need to install some dependencies: 
-       > sudo apt-get install liblapack-dev libsuitesparse-dev libcxsparse3.1.2 libgflags-dev libgoogle-glog-dev libgtest-dev
+
+> sudo apt-get install liblapack-dev libsuitesparse-dev libcxsparse3.1.2 libgflags-dev libgoogle-glog-dev libgtest-dev
+
 - Install Ceres
 
 > git clone : https://github.com/ceres-solver/ceres-solver
